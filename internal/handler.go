@@ -19,7 +19,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 	users, err := storage.LoadUsers()
 	if err != nil {
-		http.Error(w, "Error load users", http.StatusInsufficientStorage)
+		http.Error(w, "Error load users", http.StatusInternalServerError)
 		return
 	}
 
@@ -38,13 +38,14 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := storage.CreateUserFolder(newUser.ID); err != nil {
 		http.Error(w, "Error create user file", http.StatusInternalServerError)
+		return
 	}
 
 	var response models.RegisterResponse
 	response.ID = newUser.ID
 
-	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		fmt.Println(err)

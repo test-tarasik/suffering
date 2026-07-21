@@ -3,13 +3,12 @@ package storage
 import (
 	"encoding/json"
 	"os"
+	"practic/internal/config"
 	"practic/internal/models"
 )
 
-const usersFile = "data/users.json"
-
 func LoadUsers() ([]models.User, error) {
-	fileData, err := os.ReadFile(usersFile)
+	fileData, err := os.ReadFile(config.UsersFile)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +27,7 @@ func SaveUsers(users []models.User) error {
 		return err
 	}
 
-	return os.WriteFile(usersFile, usersJson, 0644)
+	return os.WriteFile(config.UsersFile, usersJson, 0644)
 }
 
 func FindUserByEmail(users []models.User, email string) bool {
