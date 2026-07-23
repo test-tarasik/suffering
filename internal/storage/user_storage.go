@@ -39,3 +39,13 @@ func FindUserByEmail(users []models.User, email string) bool {
 
 	return false
 }
+
+func FindUserByID(users []models.User, id string) bool {
+	for _, user := range users {
+		if user.ID == id {
+			return true
+		}
+	}
+
+	return false
+}
