@@ -8,6 +8,41 @@ import (
 	"practic/internal/storage"
 )
 
+func UploadFiles(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	id := r.FormValue("user_id")
+
+	users, err := storage.LoadUsers()
+	if err != nil {
+		http.Error(w, "Error load users", http.StatusInternalServerError)
+		return
+	}
+
+	if !storage.FindUserByID(users, id) {
+		http.Error(w, "User not found", http.StatusBadRequest)
+		return
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "Invalid file", http.StatusBadRequest)
+		return
+	}
+
+	defer file.Close()
+
+	if err := storage.SaveFile(id, header.Filename, file); err != nil {
+		http.Error(w, "Error save file", http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusCreated)
+
+}
+
 func UserHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
