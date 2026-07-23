@@ -13,7 +13,6 @@ func CreateUserFolder(id string) error {
 func SaveFile(userID string, filename string, src multipart.File) error {
 	dst, err := os.Create("files/" + userID + "/" + filename)
 	if err != nil {
-		dst.Close()
 		return err
 	}
 
