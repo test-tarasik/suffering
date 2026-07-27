@@ -20,22 +20,25 @@ func SaveFile(userID string, filename string, src multipart.File) error {
 	name := strings.TrimSuffix(filename, ext)
 	i := 1
 
-	for {
-		candidate := fmt.Sprintf("%s(%d)%s", name, i, ext)
-		candidatePath := "files/" + userID + "/" + candidate
+	_, err := os.Stat(path)
 
-		_, err := os.Stat(candidatePath)
-		if os.IsNotExist(err) {
-			filename = candidate
-			path = candidatePath
-			break
+	if err == nil {
+		for {
+			candidate := fmt.Sprintf("%s(%d)%s", name, i, ext)
+			candidatePath := "files/" + userID + "/" + candidate
+
+			_, err := os.Stat(candidatePath)
+			if os.IsNotExist(err) {
+				path = candidatePath
+				break
+			}
+
+			if err != nil {
+				return err
+			}
+
+			i++
 		}
-
-		if err != nil {
-			return err
-		}
-
-		i++
 	}
 
 	dst, err := os.Create(path)
