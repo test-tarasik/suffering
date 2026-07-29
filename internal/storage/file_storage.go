@@ -1,9 +1,12 @@
 package storage
 
 import (
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 func CreateUserFolder(id string) error {
@@ -11,7 +14,32 @@ func CreateUserFolder(id string) error {
 }
 
 func SaveFile(userID string, filename string, src multipart.File) error {
-	dst, err := os.Create("files/" + userID + "/" + filename)
+	path := "files/" + userID + "/" + filename
+
+	ext := filepath.Ext(filename)
+	name := strings.TrimSuffix(filename, ext)
+
+	_, err := os.Stat(path)
+
+	if err == nil {
+		for i := 1; ; i++ {
+			candidate := fmt.Sprintf("%s(%d)%s", name, i, ext)
+			candidatePath := "files/" + userID + "/" + candidate
+
+			_, err := os.Stat(candidatePath)
+			if os.IsNotExist(err) {
+				path = candidatePath
+				break
+			}
+
+			if err != nil {
+				return err
+			}
+
+		}
+	}
+
+	dst, err := os.Create(path)
 	if err != nil {
 		return err
 	}
@@ -19,7 +47,7 @@ func SaveFile(userID string, filename string, src multipart.File) error {
 	defer dst.Close()
 
 	if _, err := io.Copy(dst, src); err != nil {
-		os.Remove("files/" + userID + "/" + filename)
+		os.Remove(path)
 		return err
 	}
 
