@@ -18,12 +18,11 @@ func SaveFile(userID string, filename string, src multipart.File) error {
 
 	ext := filepath.Ext(filename)
 	name := strings.TrimSuffix(filename, ext)
-	i := 1
 
 	_, err := os.Stat(path)
 
 	if err == nil {
-		for {
+		for i := 1; ; i++ {
 			candidate := fmt.Sprintf("%s(%d)%s", name, i, ext)
 			candidatePath := "files/" + userID + "/" + candidate
 
@@ -37,7 +36,6 @@ func SaveFile(userID string, filename string, src multipart.File) error {
 				return err
 			}
 
-			i++
 		}
 	}
 
